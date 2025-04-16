@@ -29,7 +29,7 @@ public class DistributedLockAspect {
         DistributedLock distributedLock = method.getAnnotation(DistributedLock.class);
 
         String key = createLock(distributedLock, methodSignature, joinPoint);
-        RLock rLock = redissonClient.getLock(key);
+        RLock rLock = redissonClient.getFairLock(key);
 
         try {
             boolean isTriedLock = rLock.tryLock(distributedLock.waitTime(), distributedLock.leaseTime(), distributedLock.unit());
