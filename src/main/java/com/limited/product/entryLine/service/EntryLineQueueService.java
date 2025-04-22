@@ -52,4 +52,21 @@ public class EntryLineQueueService {
     public void removeFromWaitingQueue(String userId) {
         redisTemplate.opsForZSet().remove(WAITING_KEY, userId);
     }
+
+    public Set<String> getAllWaitingUsers() {
+        return redisTemplate.opsForZSet().range(WAITING_KEY, 0, -1);
+    }
+
+    public void addToWaitingQueueIfNotConnectedOrWaiting(String userId) {
+        boolean isConnected = redisTemplate.opsForZSet().score(CONNECTED_KEY, userId) != null;
+        boolean isWaiting = redisTemplate.opsForZSet().score(WAITING_KEY, userId) != null;
+
+        if (!isConnected && !isWaiting) {
+            redisTemplate.opsForZSet().add(WAITING_KEY, userId, System.currentTimeMillis());
+            log.info("대기열에 등록된 사용자: {}", userId);
+        } else {
+            log.info("이미 등록된 사용자: {}", userId + ", 상태: " +
+                    (isConnected ? "접속 중" : "대기 중"));
+        }
+    }
 }

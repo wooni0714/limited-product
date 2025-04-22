@@ -6,23 +6,23 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class EntryLineService {
-    private final EntryLineQueueService entryLineQueueService;
+    private final EntryLineQueueService waitingQueueService;
 
     public String waitingUser(String userId) {
-        long currentActive = entryLineQueueService.countConnected();
+        long currentActive = waitingQueueService.countConnected();
+        waitingQueueService.addToWaitingQueueIfNotConnectedOrWaiting(userId);
 
         if (currentActive < 10) {
-            entryLineQueueService.addToConnected(userId);
+            waitingQueueService.addToConnected(userId);
+
             return "접속 성공";
         } else {
-            Double myScore = entryLineQueueService.getMyScore(userId);
+            Double myScore = waitingQueueService.getMyScore(userId);
             if (myScore == null) {
-                entryLineQueueService.addToWaitingQueue(userId);
+                waitingQueueService.addToWaitingQueue(userId);
             }
-            long rank = entryLineQueueService.getWaitingCount(userId);
-            long waitingCount = entryLineQueueService.getMyBehindInclusive(myScore);
 
-            return "현재 대기 순번: " + (rank + 1) + ", 내 뒤에" + waitingCount + "명의 대기자가 있어요.";
+            return "대기열 등록";
         }
     }
 }
