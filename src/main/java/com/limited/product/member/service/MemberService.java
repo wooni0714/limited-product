@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.limited.product.common.Constants.ALREADY_REGISTERED_MEMBER;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -18,7 +20,7 @@ public class MemberService {
         boolean existsByUserId = memberRepository.existsByUserId(signUpRequest.userId());
 
         if (existsByUserId) {
-            throw new BusinessException("이미 존재하는 회원입니다.");
+            throw new BusinessException(ALREADY_REGISTERED_MEMBER);
         }
 
         Member member = signUpRequest.toMemberEntity();

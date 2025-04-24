@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.limited.product.common.Constants.SUCCESS;
+
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
@@ -16,6 +18,6 @@ public class MemberController {
     @PostMapping("/signup")
     public ResponseEntity<String> signUpMember(@RequestBody SignUpRequest signUpRequest) {
         memberService.signUpMember(signUpRequest);
-        return ResponseEntity.ok("가입완료");
+        return ResponseEntity.ok(SUCCESS);
     }
 }
