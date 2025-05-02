@@ -14,8 +14,8 @@ public class LimitedProductController {
     private final LimitedBuyService limitedSaleService;
 
     @PostMapping("/buy/{productId}")
-    public ResponseEntity<String> buyLimitedProduct(@PathVariable Long productId, @RequestBody LimitedBuyRequest limitedSaleRequest) {
-        limitedSaleService.limitedSale(productId, limitedSaleRequest.userId(), limitedSaleRequest.quantity());
+    public ResponseEntity<String> buyLimitedProduct(@PathVariable Long productId, @RequestBody LimitedBuyRequest limitedBuyRequest) {
+        limitedSaleService.limitedBuyProduct(productId, limitedBuyRequest.userId(), limitedBuyRequest.quantity());
             return ResponseEntity.ok(SUCCESS);
     }
 }

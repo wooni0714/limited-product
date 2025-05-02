@@ -14,7 +14,7 @@ public class LimitedBuyService {
     private final LimitedQueueService limitedQueueService;
     private final LimitedProductStockService productService;
 
-    public void limitedSale(Long productId, String userId, Long quantity) {
+    public void limitedBuyProduct(Long productId, String userId, Long quantity) {
         if (!limitedQueueService.isAlreadyConnected(userId)) {
             throw new BusinessException(NOT_ALLOWED_TO_ACCESS);
         }
