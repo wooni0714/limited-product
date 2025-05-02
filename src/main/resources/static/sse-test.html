@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SSE 대기열 테스트</title>
+</head>
+<body>
+<h2>실시간 대기순번</h2>
+<input id="userId" placeholder="user123" />
+<button onclick="start()">구독 시작</button>
+<pre id="log"></pre>
+
+<script>
+    let es;
+    function start() {
+        const u = document.getElementById("userId").value;
+        if (es) es.close();
+        es = new EventSource(`/subscribe/${u}`);
+
+        es.addEventListener("waiting-number", e => {
+            document.getElementById("log").innerText = e.data;
+        });
+        es.onerror = () => {
+            document.getElementById("log").innerText = "SSE 연결 오류";
+            es.close();
+        };
+    }
+</script>
+</body>
+</html>
