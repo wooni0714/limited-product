@@ -1,11 +1,9 @@
 package com.limited.product.limitedProduct.entity;
 
 import com.limited.product.common.exception.BusinessException;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import static com.limited.product.common.Constants.EXCEEDS_MAX_PURCHASE_QUANTITY;
 import static com.limited.product.common.Constants.INSUFFICIENT_STOCK;
@@ -13,6 +11,8 @@ import static com.limited.product.common.Constants.INSUFFICIENT_STOCK;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Slf4j
+@Table(name = "LIMITED_PRODUCT")
 public class LimitedProduct {
 
     @Id

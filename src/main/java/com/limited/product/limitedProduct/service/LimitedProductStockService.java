@@ -20,6 +20,7 @@ public class LimitedProductStockService {
 
     @DistributedLock(key = "#productId")
     public void decreaseStock(Long productId, Long quantity) {
+        log.info("==> decreaseStock 호출됨: productId={}", productId);
         LimitedProduct product = limitedProductRepository.findByProductId(productId)
                 .orElseThrow(() -> new BusinessException(PRODUCT_NOT_FOUND));
 
