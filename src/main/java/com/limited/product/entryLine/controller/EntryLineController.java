@@ -4,8 +4,6 @@ import com.limited.product.entryLine.dto.EntryLineRequest;
 import com.limited.product.entryLine.service.EntryLineService;
 import com.limited.product.entryLine.service.SseNotificationService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 

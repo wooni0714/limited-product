@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.Set;
 
 import static com.limited.product.common.Constants.CONNECTED_SUCCESSFULLY;
@@ -28,14 +29,18 @@ public class EntryLineScheduler {
         long connected = entryLineQueueService.countConnected();
         if (connected >= 10) return;
 
-        entryLineQueueService.getWaitingQueue(1)
-                .stream()
-                .findFirst()
-                .ifPresent(userId -> {
-            entryLineQueueService.removeFromWaitingQueue(userId);
-            entryLineQueueService.addToConnected(userId);
-            sseNotificationService.send(userId, CONNECTED_SUCCESSFULLY);
-            log.info("입장 처리: {}", userId);
+        Optional<String> nextUser = entryLineQueueService.getWaitingQueue();
+        nextUser.ifPresent(userId -> {
+            try {
+                entryLineQueueService.removeFromWaitingQueue(userId);
+                entryLineQueueService.addToConnected(userId);
+                sseNotificationService.send(userId, CONNECTED_SUCCESSFULLY);
+                log.info("입장 처리: {}", userId);
+            } catch (Exception e) {
+                log.error("입장 처리 실패 - userId: {}, 에러: {}", userId, e.getMessage());
+                // SSE 전송 실패 시 대기열에서 제거하지 않음
+                entryLineQueueService.removeFromConnected(userId);
+            }
         });
     }
 
@@ -43,14 +48,18 @@ public class EntryLineScheduler {
         Set<String> waiters = entryLineQueueService.getAllWaitingUsers();
 
         for (String userId : waiters) {
-            Double score = entryLineQueueService.getMyScore(userId);
-            if (score == null) continue;
+            try {
+                Double score = entryLineQueueService.getMyScore(userId);
+                if (score == null) continue;
 
-            long rank = entryLineQueueService.getWaitingCount(userId);
-            long behind = entryLineQueueService.getMyBehindInclusive(score);
+                long rank = entryLineQueueService.getWaitingCount(userId);
+                long behind = entryLineQueueService.getMyBehindInclusive(score);
 
-            String message = formatRankMessage(rank, behind);
-            sseNotificationService.send(userId, message);
+                String message = formatRankMessage(rank, behind);
+                sseNotificationService.send(userId, message);
+            } catch (Exception e) {
+                log.error("대기열 알림 전송 실패 - userId: {}, 에러: {}", userId, e.getMessage());
+            }
         }
     }
 
