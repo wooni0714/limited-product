@@ -1,7 +1,7 @@
-package com.limited.product.entryLine.scheduler;
+package com.limited.product.waiting.scheduler;
 
-import com.limited.product.entryLine.service.EntryLineQueueService;
-import com.limited.product.entryLine.service.SseNotificationService;
+import com.limited.product.waiting.service.WaitingQueueService;
+import com.limited.product.waiting.service.SseNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,8 +15,8 @@ import static com.limited.product.common.Constants.CONNECTED_SUCCESSFULLY;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class EntryLineScheduler {
-    private final EntryLineQueueService entryLineQueueService;
+public class WaitingScheduler {
+    private final WaitingQueueService waitingQueueService;
     private final SseNotificationService sseNotificationService;
 
     @Scheduled(fixedRate = 1000)
@@ -26,34 +26,33 @@ public class EntryLineScheduler {
     }
 
     private void processEntry() {
-        long connected = entryLineQueueService.countConnected();
+        long connected = waitingQueueService.countConnected();
         if (connected >= 10) return;
 
-        Optional<String> nextUser = entryLineQueueService.getWaitingQueue();
+        Optional<String> nextUser = waitingQueueService.getWaitingQueue();
         nextUser.ifPresent(userId -> {
             try {
-                entryLineQueueService.removeFromWaitingQueue(userId);
-                entryLineQueueService.addToConnected(userId);
+                waitingQueueService.removeFromWaitingQueue(userId);
+                waitingQueueService.addToConnected(userId);
                 sseNotificationService.send(userId, CONNECTED_SUCCESSFULLY);
                 log.info("입장 처리: {}", userId);
             } catch (Exception e) {
                 log.error("입장 처리 실패 - userId: {}, 에러: {}", userId, e.getMessage());
-                // SSE 전송 실패 시 대기열에서 제거하지 않음
-                entryLineQueueService.removeFromConnected(userId);
+                waitingQueueService.removeFromConnected(userId);
             }
         });
     }
 
     private void notifyWaitingUsers() {
-        Set<String> waiters = entryLineQueueService.getAllWaitingUsers();
+        Set<String> waiters = waitingQueueService.getAllWaitingUsers();
 
         for (String userId : waiters) {
             try {
-                Double score = entryLineQueueService.getMyScore(userId);
+                Double score = waitingQueueService.getMyScore(userId);
                 if (score == null) continue;
 
-                long rank = entryLineQueueService.getWaitingCount(userId);
-                long behind = entryLineQueueService.getMyBehindInclusive(score);
+                long rank = waitingQueueService.getWaitingCount(userId);
+                long behind = waitingQueueService.getMyBehindInclusive(score);
 
                 String message = formatRankMessage(rank, behind);
                 sseNotificationService.send(userId, message);

@@ -1,4 +1,4 @@
-package com.limited.product.entryLine.service;
+package com.limited.product.waiting.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EntryLineQueueService {
+public class WaitingQueueService {
     private final RedisTemplate<String, String> redisTemplate;
     private static final String WAITING_KEY = "waitingQueue";
     private static final String CONNECTED_KEY = "connectedUsers";

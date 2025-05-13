@@ -1,4 +1,4 @@
-package com.limited.product.entryLine.service;
+package com.limited.product.waiting.service;
 
 import com.limited.product.common.exception.BusinessException;
 import com.limited.product.member.repository.MemberRepository;
@@ -11,8 +11,8 @@ import static com.limited.product.common.Constants.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EntryLineService {
-    private final EntryLineQueueService waitingQueueService;
+public class WaitingService {
+    private final WaitingQueueService waitingQueueService;
     private final MemberRepository memberRepository;
 
     public String waitingUser(String userId) {

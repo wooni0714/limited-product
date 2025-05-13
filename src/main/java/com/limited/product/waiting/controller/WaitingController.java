@@ -1,20 +1,20 @@
-package com.limited.product.entryLine.controller;
+package com.limited.product.waiting.controller;
 
-import com.limited.product.entryLine.dto.EntryLineRequest;
-import com.limited.product.entryLine.service.EntryLineService;
-import com.limited.product.entryLine.service.SseNotificationService;
+import com.limited.product.waiting.dto.WaitingRequest;
+import com.limited.product.waiting.service.WaitingService;
+import com.limited.product.waiting.service.SseNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequiredArgsConstructor
-public class EntryLineController {
-    private final EntryLineService entryLineQueueService;
+public class WaitingController {
+    private final WaitingService entryLineQueueService;
     private final SseNotificationService sseNotificationService;
 
     @PostMapping("/connect")
-    public String connect(@RequestBody EntryLineRequest request) {
+    public String connect(@RequestBody WaitingRequest request) {
         return entryLineQueueService.waitingUser(request.userId());
     }
 
