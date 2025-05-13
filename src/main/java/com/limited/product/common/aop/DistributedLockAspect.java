@@ -29,12 +29,12 @@ public class DistributedLockAspect {
         DistributedLock distributedLock = method.getAnnotation(DistributedLock.class);
 
         String key = createLock(distributedLock, methodSignature, joinPoint);
-        RLock rLock = redissonClient.getFairLock(key);
+        RLock rLock = redissonClient.getLock(key);
 
         try {
             boolean isTriedLock = rLock.tryLock(distributedLock.waitTime(), distributedLock.leaseTime(), distributedLock.unit());
             if (!isTriedLock) {
-                return false;
+                throw new IllegalStateException("Lock 획득 실패");
             }
 
             return aopTransactionAspect.proceed(joinPoint);
@@ -42,10 +42,12 @@ public class DistributedLockAspect {
             Thread.currentThread().interrupt();
             throw new InterruptedException();
         } finally {
-            try {
-                rLock.unlock();
-            } catch (IllegalStateException e) {
-                log.warn("Unlock failed name = {}, key = {}", method.getName(), key);
+            if (rLock.isHeldByCurrentThread()) {
+                try {
+                    rLock.unlock();
+                } catch (IllegalStateException e) {
+                    log.warn("Unlock failed name = {}, key = {}", method.getName(), key);
+                }
             }
         }
     }
